@@ -1,0 +1,160 @@
+------------------------------
+BASE DE DATOS.
+JUAN JESUS CUARTERO VALENCIA.
+1º DAM PRESENCIAL.
+------------------------------
+
+
+->	Practica: Consulta sobre varias tablas 'comercio' e 'instituto'
+
+
+
+13. Mostrar el código de ticket, fecha y nombre del cliente sin que se pierda ningún ticket, 
+aunque su cliente sea NULL. 
+
+-> select ticket.codigo, cliente.nombre from ticket Left Join cliente on cliente.codigo = ticket.cliente;
+
+
+14. Mostrar el nombre y dirección de los clientes junto con el nombre de su municipio sin 
+perder aquellos municipios que no tienen clientes. 
+
+-> select cliente.nombre, cliente.direccion, municipio.nombre as municipio from cliente right join municipio ON cliente.municipio=municipio.codigo;
+
+15. Escribe una consulta que devuelva el código de ticket, línea, código y descripción del 
+artículo para todas las líneas del ticket 108, aunque el código de artículo sea nulo. 
+
+-> select linea_ticket.ticket, linea_ticket.nlinea, articulo.codigo, articulo.descripcion 
+FROM linea_ticket LEFT JOIN articulo 
+ON articulo.codigo=linea_ticket.articulo  
+WHERE linea_ticket.ticket=108;
+
+16. Si has resuelto la sentencia anterior con RIGHT JOIN, resuélvela con LEFT JOIN. Si 
+la has resuelto con LEFT JOIN, resuélvela con RIGHT JOIN.
+
+-> select linea_ticket.ticket, linea_ticket.nlinea, articulo.codigo, articulo.descripcion 
+FROM articulo RIGHT JOIN linea_ticket
+ON articulo.codigo=linea_ticket.articulo  
+WHERE linea_ticket.ticket=108;
+ 
+17. Mostrar el nombre de cada municipio y el número de clientes residiendo en cada uno 
+de ellos. Los municipios que no tienen ningún cliente no aparecerán. 
+
+-> select municipio.nombre, COUNT(cliente.nombre)
+from municipio Right Join cliente
+On municipio.codigo=cliente.municipio
+GROUP BY municipio.nombre;
+
+18. Mostrar el nombre de cada municipio y el número de clientes residiendo en cada uno 
+de ellos. Los municipios que no tienen ningún cliente también aparecerán. 
+
+-> select municipio.nombre, COUNT(cliente.nombre)
+from municipio Left Join cliente
+On municipio.codigo=cliente.municipio
+GROUP BY municipio.nombre;
+
+19. Escribe una consulta que devuelva el código y fecha de cada ticket junto al nombre del 
+vendedor que realizó la venta y el nombre del cliente destinatario del ticket. No se 
+debe perder ningún ticket aunque no tenga código de vendedor o código de cliente. 
+
+-> select ticket.codigo, ticket.fecha, vendedor.nombre, cliente.nombre 
+from ticket left join vendedor
+on ticket.vendedor=vendedor.codigo
+Join cliente on cliente.codigo=ticket.cliente;
+
+
+20. Obtén el nombre de los clientes y el número de tickets en los que aparece cada uno. 
+También se mostrará el nombre de los clientes que no aparecen en ningún ticket. 
+
+-> select cliente.nombre, count(ticket.cliente) AS CantidadTickets
+from cliente Right join ticket on cliente.codigo=ticket.cliente
+group by cliente.nombre;
+
+21. Escribe una sentencia que muestre el código y nombre de cada vendedor y el total de 
+ventas (importe total de sus tickets ignorando posibles descuentos e impuestos). 
+
+-> select vendedor.nombre, vendedor.codigo, Count(linea_ticket.cant)*linea_ticket.precio As TotalVentas
+from  ticket Right Join linea_ticket On linea_ticket.ticket=ticket.codigo 
+Left Join vendedor On vendedor.codigo=ticket.vendedor Group By vendedor;
+
+22. Escribe una sentencia que muestre el nombre de la provincia y la cantidad total de 
+artículos vendidos a clientes que residen en dicha provincia. 
+
+-> select provincia.nombre, count(ticket.cliente) as ClientesPorProvincia
+from ticket Left Join cliente On ticket.cliente=cliente.codigo
+Left Join municipio On municipio.codigo=cliente.municipio 
+Right join provincia On provincia.codigo=municipio.provincia
+Group By provincia;
+
+23. Escribe una consulta que muestre el código y nombre de aquellos clientes de la 
+provincia de Castellón (con código de provincia ‘CA’) que en total han gastado más de 
+100 euros (ignora descuentos e impuestos). 
+
+-> select cliente.codigo, cliente.nombre, municipio.provincia, count(linea_ticket.cant)*linea_ticket.precio AS Gastado
+From linea_ticket, cliente Right join municipio on cliente.municipio=municipio.codigo
+Left join provincia on provincia.codigo=municipio.provincia 
+WHERE provincia.codigo LIKE "CA" Group By cliente.codigo ;
+
+24. Escribe una consulta que obtenga el nombre de cada vendedor y el de su jefe. 
+
+>> 
+
+
+
+
+->    			CONSULTAS INSTITUTO
+
+
+25. Obtén el nombre de cada asignatura, así como el curso, edificio y aula donde se 
+imparte. 
+
+>> select asignatura.nombre, asignatura.curso, imparte.edificioAula AS edificio, imparte.claseAula AS aula
+from asignatura Left Join imparte ON imparte.asignatura= asignatura.codigo;
+
+26. Obtén el nombre completo de cada profesor junto con el nombre y curso de cada una 
+de las asignaturas asignatura que imparte. 
+
+>> select profesor.nombre, asignatura.nombre, asignatura.curso 
+from profesor left join ensenya on ensenya.profesor=profesor.dni
+left join asignatura on asignatura.codigo=ensenya.asignatura Order By profesor.nombre;
+
+27. Obtén el nombre y apellidos de los alumnos nacidos en 1999 junto con el nombre de 
+cada una de las asignaturas que cursa y la nota obtenida. 
+
+>> select alumno.nombre, alumno.apellido1, alumno.apellido2, asignatura.nombre AS asignatura, matricula.nota
+From asignatura left join matricula on matricula.asignatura=asignatura.codigo
+Left join alumno on alumno.dni=matricula.alumno
+where alumno.fechnac LIKE "%-%-1999"  Order By alumno.nombre ;
+
+28. Obtén el nombre de los profesores y el número de alumnos que tienen. 
+
+>>  select profesor.nombre, count(matricula.alumno) As Alumnos
+from profesor left join ensenya ON profesor.dni = ensenya.profesor
+left join asignatura on asignatura.codigo = ensenya.asignatura
+left join matricula on matricula.asignatura=asignatura.codigo
+Group by profesor.nombre;
+
+29. Para cada asignatura, obtén el nombre, el curso y la nota media obtenida por los 
+alumnos que la cursan. 
+
+>> select asignatura.nombre, asignatura.curso, AVG(matricula.nota) AS NotaMedia
+from asiagnatura Right join matricula ON matricula.asignatura=asignatura.codigo GROUP BY asignatura.nombre;
+
+30. Obtén el nombre completo de cada alumno y la cantidad de asignaturas en que está 
+matriculado cada uno de ellos siempre y cuando esté matriculado en menos de 5 
+asignaturas. 
+
+>> select alumno.nombre, alumno.apellido1, alumno.apellido2, Count(matricula.alumno) AS matriculas
+from alumno left join matricula on alumno.dni=matricula.alumno /*Where matriculas> 5*/ Group by alumno.nombre;
+
+
+
+
+
+
+
+
+
+
+
+
+
